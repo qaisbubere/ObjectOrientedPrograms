@@ -32,6 +32,7 @@ public class JSONPrograms{
 	static String shareName,name;
 	static JSONArray array1 = new JSONArray();
 	static JSONObject object = new JSONObject();
+	
 	public static void dataInventory() throws IOException, ParseException{
 		JSONObject object1 = new JSONObject();
 		JSONObject object2 = new JSONObject();
@@ -70,6 +71,9 @@ public class JSONPrograms{
         calculateValue(riceObject);
 	}
 	
+	/*
+	 * method for calculating total value of a particular object
+	 */
 	public static void calculateValue(JSONObject riceObject) throws FileNotFoundException, IOException, ParseException{
 		JSONParser parser = new JSONParser();
         JSONObject fileData = (JSONObject) parser.parse(new FileReader("/home/bridgeit/Desktop/DataInventory.json"));
@@ -77,8 +81,14 @@ public class JSONPrograms{
 		
 		System.out.println("enter name");
 		String name = scanner.next();
+		/*
+		 * for-loop for traversing through all elements
+		 */
 		for(int a=0; a<array.size(); a++){
 			JSONObject object1 = (JSONObject) array.get(a);
+			/*
+			 * if-else loop for calculating total value
+			 */
 			if(object1.get("name").equals(name)){
 				long price =  (long) object1.get("price");
 				long weight = (long) object1.get("weight");
@@ -87,11 +97,19 @@ public class JSONPrograms{
 				System.out.println("total value of "+name+" is " +totalValue);
 				break;
 					}
-				}   
+					/*
+					 * if-else loop ends
+					 */
+			}   
+			/*
+			 * for loop ends
+			 */
 			} 
 
 
-
+	/*
+	 *method for replacing words in a string using regex 
+	 */
 	public static void regularExpression() {
 		System.out.println("default message is "+message);
 		String []defaultMessage = {"<<name>>", "<<firstname>>","xxxxxxxxxx","X/XX/XXXX"};
@@ -105,15 +123,12 @@ public class JSONPrograms{
 			input[j++] = scanner.next();
 			System.out.println("enter your mobile number");
 			input[j++] = scanner.next();			
-		}
-		/*Pattern pattern = Pattern.compile("<<name>>");
-		Matcher match = pattern.matcher(message);
-		String result = match.replaceAll(firstName);
-		System.out.println(result);*/
-		
-		
+		}	
 	}
 
+	/*
+	 * method for stock report
+	 */
 	public static void stockReport() throws IOException {
 
 		File file = new File("/home/bridgeit/Desktop/stockReport.json");
@@ -122,6 +137,10 @@ public class JSONPrograms{
 
 		System.out.println("number of stock?");
 		totalStock = scanner.nextInt();
+		
+		/*
+		 * while loop for calculating total value
+		 */
 		while(i<=totalStock){
 			JSONArray array = new JSONArray();
 			System.out.println("enter name of share");
@@ -144,16 +163,25 @@ public class JSONPrograms{
 			object.remove("nameOfShare");
 			object.remove("number_of_shares");
 			object.remove("share price");
-			}		
+			}	
+		/*
+		 * while loop ends
+		 */
 		System.out.println(" total value of all stock is "+totalValue);	
 	}
 	
+	/*
+	 * method for writing stock entries on file 
+	 */
 	public static void stockEntries(JSONArray array,FileWriter filewriter) throws IOException{
 		System.out.println(array);
 		filewriter.write(array.toJSONString());
 		filewriter.flush();
 	}
 
+	/*
+	 * method for extension of inventory management program
+	 */
 	public static void inventoryManagement(JSONArray newArray) {
 		
 		while(repeat!=newArray.size())

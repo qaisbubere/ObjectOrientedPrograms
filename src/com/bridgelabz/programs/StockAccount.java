@@ -32,6 +32,7 @@ public class StockAccount {
 		static DateTimeFormatter itsObject = DateTimeFormatter.ofPattern("yyyy/dd/MM HH:mm:ss");
 		static JSONArray myshares= new JSONArray(); 
 		static JSONObject stockHolder = new JSONObject();
+		static JSONObject myShares = new JSONObject();
 
 	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 
@@ -81,22 +82,38 @@ public class StockAccount {
 		choice(finalObject);
 	}
 	
+	
+	/*
+	 * method to buy shares
+	 */
 	public static void buy(JSONObject finalObject) throws FileNotFoundException, IOException, ParseException{
-		
 		
 		JSONParser parser = new JSONParser();
 		JSONObject temp = new JSONObject();
 		JSONObject fileData = (JSONObject) parser.parse(new FileReader("/home/bridgeit/Desktop/Account.json"));
 		JSONArray fileReadingArray = (JSONArray) fileData.get("Stock");
+		
+		/*
+		 * do-while loop for buying shares again and again
+		 */
 		do{
 		System.out.println("which company's shares do you wish to buy?");
 		String companyName = scanner.next();
+		
+		/*
+		 * for-loop for getting data of appropriate company
+		 */
 		for(int a=0; a<fileReadingArray.size(); a++){
 			JSONObject jsonObject = (JSONObject) fileReadingArray.get(a);
+			
 			if(jsonObject.get("company name").equals(companyName)){
 				System.out.println("how man shares do u want to buy?");
 				int sharesToBuy = scanner.nextInt();
 				long remainingshares=(long) jsonObject.get("remaining_shares");
+				
+				/*
+				 * if-else loop for purchasing share
+				 */
 				if(sharesToBuy<=remainingshares){
 					long priceOfShare=(long) jsonObject.get("price per share");
 					long currentValue = priceOfShare*sharesToBuy; 	
@@ -116,10 +133,12 @@ public class StockAccount {
 				else{
 					System.out.println("sorry!! ,"+remainingshares+" shares are available. would you like to buy ? \n 1:yes\n 2:no");
 					int answer= scanner.nextInt();
+					
 					if(answer==1){
 					System.out.println("how man shares do u want to buy?");
 					int SharesToBuy = scanner.nextInt();
 					remainingshares=(long) jsonObject.get("remaining_shares");
+					
 					if(SharesToBuy<=remainingshares){
 						long priceOfShare=(long) jsonObject.get("price per share");
 						long currentValue = priceOfShare*SharesToBuy; 	
@@ -143,25 +162,43 @@ public class StockAccount {
 				}
 			}
 		}
+		/*
+		 * for-loop ends
+		 */
 		}
 		while(choiceAgain==1);
+		/*
+		 * do-while loop ends
+		 */
 	}
 	
 	
+	/*
+	 * method to write data on file
+	 */
 	public static void stockPurchasedAndSold(JSONObject stockHolder) throws IOException{
-		myshares.add(stockHolder);
+		myshares.add(stockHolder);//this is array
+		myShares.put("myshares", myshares);//this is object
 		FileWriter filewriter = new FileWriter("/home/bridgeit/Desktop/shareholder.json");
-		filewriter.write(stockHolder.toJSONString());
+		filewriter.write(myShares.toJSONString());
         filewriter.flush();
 	}
+	
+	/*
+	 * method to sell the shares 
+	 */
 	public static void sell() throws FileNotFoundException, IOException, ParseException{
 		
 		JSONParser parser = new JSONParser();
 		JSONObject temp = new JSONObject();
 		JSONObject fileData = (JSONObject) parser.parse(new FileReader("/home/bridgeit/Desktop/shareholder.json"));
 		JSONArray array = (JSONArray) fileData.get("myshares");
-		JSONObject object = new JSONObject();
+		JSONObject jsonObject = (JSONObject) array.get(0);
+		myTotalShares = (long) jsonObject.get("total share");
 		
+		/*
+		 * do-while loop for performing selling again and again
+		 */
 		do{
 		System.out.println("you have "+myTotalShares+" shares");
 		System.out.println("how many shares you want to sell?");
@@ -169,6 +206,7 @@ public class StockAccount {
 		if(selling<=myTotalShares){
 			myTotalShares=myTotalShares-selling;
 			System.out.println("you sold "+selling+" shares. "+myTotalShares+" are remaining with u");
+			//stockHolder.put("total share", myTotalShares);
 			stockHolder.put("total share", myTotalShares);
 			stockPurchasedAndSold(stockHolder);
 			System.out.println("do you wish to sell again? \n 1:yes \n 2:no");
@@ -178,10 +216,12 @@ public class StockAccount {
 		else{
 			System.out.println(+myTotalShares+" are available. please enter figure among that");
 			int Selling = scanner.nextInt(); 
+			
 			if(Selling<=myTotalShares){
 				myTotalShares=myTotalShares-Selling;
 				System.out.println("you sold "+Selling+" shares. "+myTotalShares+" are remaining with u");
 				stockHolder.put("total share", myTotalShares);
+
 				stockPurchasedAndSold(stockHolder);
 				System.out.println("do you wish to sell again? \n 1:yes \n 2:no");
 				wishAgain = scanner.nextInt();
@@ -189,8 +229,14 @@ public class StockAccount {
 		}
 		}
 		while(wishAgain==1);
+		/*
+		 * do-while loop ends
+		 */
 	}
 	
+	/*
+	 * method for users choice to buy or sell
+	 */
 	public static void choice(JSONObject finalObject) throws FileNotFoundException, IOException, ParseException{
 		System.out.println("1: buy shares \n 2:sell shares");
 		int choice=scanner.nextInt();
