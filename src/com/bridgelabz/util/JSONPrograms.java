@@ -17,11 +17,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.json.simple.JSONArray;
+import com.bridgelabz.util.Expression;
 
 public class JSONPrograms{
 
@@ -113,19 +115,46 @@ public class JSONPrograms{
 	 *method for replacing words in a string using regex 
 	 */
 	public static void regularExpression() {
-		System.out.println("default message is "+message);
-		String []defaultMessage = {"<<name>>", "<<firstname>>","xxxxxxxxxx","X/XX/XXXX"};
-		String []input = new String[defaultMessage.length];
-		
-		while(i==1){
-			int j=0;
-			System.out.println("enter your first name");
-			input[j++] = scanner.next(); 
-			System.out.println("enter your full name");
-			input[j++] = scanner.next();
-			System.out.println("enter your mobile number");
-			input[j++] = scanner.next();			
-		}	
+				
+		  Scanner scanner = new Scanner(System.in);
+		  String message = "Hello <name>,\nWe have your fullname as <full name> in our system. \n"
+				  			+ "Your contact number is 91-xxxxxxxxxx. \n" + "Please,let us know in case of any clarification \n"
+				  			+ "Thankyou BridgeLabz \n01/01/2016.";
+		  String[] pattern = { "<full name>", "<name>", "xxxxxxxxxx", "01/01/2016" };
+		  String[] replacePattern = new String[pattern.length];
+		  
+		  Expression expression = new Expression();
+			int position = 0;
+			System.out.println("Enter the FullName");
+			expression.setFullName(scanner.nextLine());
+			replacePattern[position++]= expression.getfullName() ;
+			System.out.println("Enter the Name");
+			expression.setName(scanner.next());
+		    replacePattern[position++] = expression.getName();
+		    System.out.println("Enter phone number");
+		    expression.setPhoneNumber(scanner.next());
+		    replacePattern[position++] = expression.getPhoneNumber() ;
+		    Date date = new Date();
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		    replacePattern[position++] = dateFormat.format(date);
+		    
+		    for(int i=0;i<pattern.length;i++){
+		        	message = replaceContent(message, pattern[i], replacePattern[i]);
+		    }
+			
+	}
+	
+	/*
+	 * method to replace given content with user defined content
+	 */
+	public static String replaceContent(String replacedMessage, String stringToBeReplaced, String replacement) {
+		String message = replacedMessage;
+		Pattern pattern = Pattern.compile(stringToBeReplaced);
+		Matcher matcher = pattern.matcher(message);
+		while (matcher.find()) {
+			message = matcher.replaceAll(Matcher.quoteReplacement(replacement));
+		}
+		return message;
 	}
 
 /************************************************************************************************************************************/
@@ -271,6 +300,9 @@ public class JSONPrograms{
 		}
 	}
 
+	/*
+	 * 
+	 */
 	public static void printSortedCards(String[][] playerCards, int noOfPlayers, int noOfCards) {
 		String[] cards = new String[noOfCards];
 		for (int i = 0; i < noOfPlayers; i++) {
@@ -283,7 +315,9 @@ public class JSONPrograms{
 		printSortedCardQueue();
 	}
 	
-	
+	/*
+	 * method for sorting cards on the basis of ranks
+	 */
 	private static void sort(String[] cards) {
 		char[] rank = { 'A', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K' };
 		for (int i = 0; i < rank.length; i++) {
@@ -297,6 +331,9 @@ public class JSONPrograms{
 	}
 
 	
+	/*
+	 * method for printing sorted card queue
+	 */
 	private static void printSortedCardQueue() {
 		for (int i = 0; i < queue.size(); i++) {
 			if (i % 10 == 0)
