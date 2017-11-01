@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 import org.json.simple.JSONArray;
@@ -23,16 +24,24 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.bridgelabz.util.QueueLinkedList;
+
 public class StockAccount {
 
 		
-		static int defaultShares=50,numberOfShares,remainingShares1,remainingShares2,remainingShares3,choiceAgain,myTotalStocks,wishAgain;
+		static int defaultShares=50,numberOfShares,sharesToBuy,remainingShares1,remainingShares2,remainingShares3,SharesToBuy,choiceAgain,myTotalStocks,wishAgain,loop=0;
 		static long remainingshares,myTotalShares;
 		static Scanner scanner = new Scanner(System.in);
 		static DateTimeFormatter itsObject = DateTimeFormatter.ofPattern("yyyy/dd/MM HH:mm:ss");
 		static JSONArray myshares= new JSONArray(); 
 		static JSONObject stockHolder = new JSONObject();
 		static JSONObject myShares = new JSONObject();
+		static QueueLinkedList<String> buyQueue = new QueueLinkedList<String>();
+		static QueueLinkedList<String> sellQueue = new QueueLinkedList<String>();
+		static LinkedList listToAdd = new LinkedList();
+		static LinkedList listToRemove = new LinkedList();
+
+
 
 	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 
@@ -43,7 +52,8 @@ public class StockAccount {
 		else
 		{
 			System.out.println("file created");
-		}
+		}LocalDateTime now = LocalDateTime.now();
+		System.out.println("date and time of transactionis "+itsObject.format(now)); 
 		
 		File shareHolder = new File("/home/bridgeit/Desktop/shareholder.json");
 
@@ -108,19 +118,20 @@ public class StockAccount {
 			
 			if(jsonObject.get("company name").equals(companyName)){
 				System.out.println("how man shares do u want to buy?");
-				int sharesToBuy = scanner.nextInt();
+				sharesToBuy = scanner.nextInt();
 				long remainingshares=(long) jsonObject.get("remaining_shares");
 				
 				/*
 				 * if-else loop for purchasing share
 				 */
+				if(remainingshares>0){
 				if(sharesToBuy<=remainingshares){
 					long priceOfShare=(long) jsonObject.get("price per share");
 					long currentValue = priceOfShare*sharesToBuy; 	
 					long totalValue =+ currentValue;
 					System.out.println("you bought "+sharesToBuy+" shares, and your total amount is "+currentValue);
-					LocalDateTime now = LocalDateTime.now();
-					System.out.println("date and time of transactionis "+itsObject.format(now)); 
+					transactionDateAndTimeForBuy();
+					listToAdd.add(sharesToBuy);
 					remainingshares=remainingshares-sharesToBuy;
 					myTotalStocks=myTotalStocks+sharesToBuy;
 					jsonObject.put("remaining_shares", remainingshares);
@@ -136,7 +147,7 @@ public class StockAccount {
 					
 					if(answer==1){
 					System.out.println("how man shares do u want to buy?");
-					int SharesToBuy = scanner.nextInt();
+					SharesToBuy = scanner.nextInt();
 					remainingshares=(long) jsonObject.get("remaining_shares");
 					
 					if(SharesToBuy<=remainingshares){
@@ -144,8 +155,8 @@ public class StockAccount {
 						long currentValue = priceOfShare*SharesToBuy; 	
 						long totalValue =+ currentValue;
 						System.out.println("you bought "+SharesToBuy+" shares, and your total amount is "+currentValue);
-						LocalDateTime now = LocalDateTime.now();
-						System.out.println("dmyTotalSharesate and time of transactionis "+itsObject.format(now)); 
+						listToAdd.add(SharesToBuy);
+						transactionDateAndTimeForBuy();	
 						remainingshares=remainingshares-SharesToBuy;
 						jsonObject.put("remaining_shares", remainingshares);
 						myTotalStocks=myTotalStocks+SharesToBuy;
@@ -155,21 +166,27 @@ public class StockAccount {
 						choiceAgain = scanner.nextInt();
 					}
 					}
-					else
-					{
-						break;
-					}
 				}
 			}
+				else{
+					System.out.println("shares for this company is finished. enter another company");
+				}
 		}
 		/*
 		 * for-loop ends
 		 */
 		}
+		}
 		while(choiceAgain==1);
 		/*
 		 * do-while loop ends
 		 */
+		
+		System.out.println("do you want to see date and time of transactions? \n 1:yes \n 2:no");
+		int transaction = scanner.nextInt();
+		if(transaction == 1){
+			showTransactions();
+		}
 	}
 	
 	
@@ -206,6 +223,8 @@ public class StockAccount {
 		if(selling<=myTotalShares){
 			myTotalShares=myTotalShares-selling;
 			System.out.println("you sold "+selling+" shares. "+myTotalShares+" are remaining with u");
+			listToRemove.add(selling);
+			transactionDateAndTimeForSell();
 			//stockHolder.put("total share", myTotalShares);
 			stockHolder.put("total share", myTotalShares);
 			stockPurchasedAndSold(stockHolder);
@@ -220,6 +239,9 @@ public class StockAccount {
 			if(Selling<=myTotalShares){
 				myTotalShares=myTotalShares-Selling;
 				System.out.println("you sold "+Selling+" shares. "+myTotalShares+" are remaining with u");
+				listToRemove.add(Selling);
+
+				transactionDateAndTimeForSell();
 				stockHolder.put("total share", myTotalShares);
 
 				stockPurchasedAndSold(stockHolder);
@@ -232,6 +254,11 @@ public class StockAccount {
 		/*
 		 * do-while loop ends
 		 */
+		System.out.println("do you want to see date and time of transactions? \n 1:yes \n 2:no");
+		int transaction = scanner.nextInt();
+		if(transaction == 1){
+			showTransactions();
+		}
 	}
 	
 	/*
@@ -247,5 +274,42 @@ public class StockAccount {
 		else
 			System.out.println("wrong choice");
 	}
+	
+	
+	public static void addToList(){
+		
+	}
+	
+	
+	public static void transactionDateAndTimeForBuy(){
+		LocalDateTime now = LocalDateTime.now();
+		String dateTimeString = itsObject.format(now);
+		buyQueue.enQueue(itsObject.format(now));
+		System.out.println(itsObject.format(now));
+	
+	}
+
+	public static void 	transactionDateAndTimeForSell(){
+		LocalDateTime now = LocalDateTime.now();
+		String dateTimeString = itsObject.format(now);
+		sellQueue.enQueue(itsObject.format(now));
+		System.out.println(itsObject.format(now));
+
+	}
+	
+	public static void showTransactions(){	
+		System.out.println("list of buyed shares");
+		System.out.println(listToAdd);
+		
+		System.out.println("list of sold shares");
+		System.out.println(listToRemove);
+
+		System.out.println("date and time for 'buy' transactions :");		
+		System.out.println(buyQueue);	
+			
+		System.out.println("date and time for 'sell' transactions :");
+		System.out.println(sellQueue);
+	}
+
 		
 }
