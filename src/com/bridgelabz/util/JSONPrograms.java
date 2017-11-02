@@ -36,6 +36,9 @@ public class JSONPrograms{
 	static JSONObject object = new JSONObject();
 	private static QueueLinkedList<String> queue = new QueueLinkedList<String>();
 	
+	/*
+	 * method for inserting objects to inventory
+	 */
 	public static void dataInventory() throws IOException, ParseException{
 		JSONObject object1 = new JSONObject();
 		JSONObject object2 = new JSONObject();
